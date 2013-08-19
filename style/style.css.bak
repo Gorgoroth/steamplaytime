@@ -1,0 +1,251 @@
+.error { color: red; }
+
+.required { color: red; }
+
+.right { float: right; }
+
+.left { float: left; }
+
+.center { text-align: center; margin: 10px;}
+
+.general { margin: 15px; }
+
+#tweet { margin: 10px;}
+
+body { 
+	background-color: #4C92D5;
+	margin:0px;
+    padding:6px;
+    width: auto;
+    min-width:600px;
+    font-family: sans-serif;
+    font-size: 100%;
+}
+
+
+div.main {
+	margin-top: 10px;
+	background-color: white;
+	overflow: hidden;
+	min-width: 960px;
+	max-width: 960px;
+	margin: 0 auto;
+}
+
+
+div.footer {
+	font-size: 15px;
+	text-align: right;
+	clear: both;
+	margin: 3px;
+}
+
+
+div.top-ads {
+	
+	text-align: center;
+}
+
+div.bottom-ads {
+	clear: both;
+	text-align: center;
+	margin: 15px;
+	padding: 15px;
+}
+
+div.side-ads {
+	padding: 0px;
+	text-align: center;
+
+}
+
+
+table {
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table td, table th {
+  border: 1px solid black;
+  padding: 6px;
+}
+
+.l {
+	border-color: #666666;
+	background-color: #dedede;
+}
+
+#submit.blue {
+	background-color: #1874cd;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#4f9eea), to(#1874cd));
+	background-image: -webkit-linear-gradient(top, #4f9eea, #1874cd);
+	background-image: -moz-linear-gradient(top, #4f9eea, #1874cd);
+	background-image: -ms-linear-gradient(top, #4f9eea, #1874cd);
+	background-image: -o-linear-gradient(top, #4f9eea, #1874cd);
+	background-image: linear-gradient(top, #4f9eea, #1874cd);
+	border: 1px solid #115290;
+	color: #fff;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#4f9eea, endColorstr=#1874cd);
+	text-shadow: 0 1px 0 #115290;
+}
+
+#submit.blue:hover {
+	background-color: #7db7f0;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#7db7f0), to(#1874cd));
+	background-image: -webkit-linear-gradient(top, #7db7f0, #1874cd);
+	background-image: -moz-linear-gradient(top, #7db7f0, #1874cd);
+	background-image: -ms-linear-gradient(top, #7db7f0, #1874cd);
+	background-image: -o-linear-gradient(top, #7db7f0, #1874cd);
+	background-image: linear-gradient(top, #7db7f0, #1874cd);
+	border: 1px solid #115290;
+	color: #fff;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#7db7f0, endColorstr=#1874cd);
+	text-shadow: 0 1px 0 #115290;
+}
+
+#report.blue {
+	background-color: #1874cd;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#4f9eea), to(#1874cd));
+	background-image: -webkit-linear-gradient(top, #4f9eea, #1874cd);
+	background-image: -moz-linear-gradient(top, #4f9eea, #1874cd);
+	background-image: -ms-linear-gradient(top, #4f9eea, #1874cd);
+	background-image: -o-linear-gradient(top, #4f9eea, #1874cd);
+	background-image: linear-gradient(top, #4f9eea, #1874cd);
+	border: 1px solid #115290;
+	color: #fff;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#4f9eea, endColorstr=#1874cd);
+	text-shadow: 0 1px 0 #115290;
+}
+
+#report.blue:hover {
+	background-color: #7db7f0;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#7db7f0), to(#1874cd));
+	background-image: -webkit-linear-gradient(top, #7db7f0, #1874cd);
+	background-image: -moz-linear-gradient(top, #7db7f0, #1874cd);
+	background-image: -ms-linear-gradient(top, #7db7f0, #1874cd);
+	background-image: -o-linear-gradient(top, #7db7f0, #1874cd);
+	background-image: linear-gradient(top, #7db7f0, #1874cd);
+	border: 1px solid #115290;
+	color: #fff;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#7db7f0, endColorstr=#1874cd);
+	text-shadow: 0 1px 0 #115290;
+}
+
+#alerts { margin: 5px;}
+
+.featured { margin: 0px;}
+
+/*---- CROSS BROWSER DROPDOWN MENU snagged from http://www.handy-html.com/simple-css-dropdown-menu-updated/----*/
+ul#nav {margin: 5px;}
+ul.drop a { display:block; color: white; font-family: Verdana; font-size: 15px; text-decoration: none;}
+ul.drop, ul.drop li, ul.drop ul { list-style: none; margin: 0; font-size: 15px; padding: 0; border: 1px solid #fff; background: #4C92D5; color: white;}
+ul.drop { position: relative; z-index: 597; float: left; }
+ul.drop li { float: left; line-height: 1.3em; vertical-align: middle; zoom: 1; padding: 5px 10px; }
+ul.drop li.hover, ul.drop li:hover { position: relative; z-index: 599; cursor: default; background: #3987D2; }
+ul.drop ul { visibility: hidden; position: absolute; top: 100%; left: 0; z-index: 598; width: 195px; background: #555; border: 1px solid #fff; }
+ul.drop ul li { float: none; }
+ul.drop ul ul { top: -2px; left: 100%; }
+ul.drop li:hover > ul { visibility: visible }
+
+
+
+.input_hidden {
+    position: absolute;
+    left: -9999px;
+}
+
+.selected {
+    border: 5px solid green;
+}
+
+#gifts-disp label {
+    display: inline-block;
+    cursor: pointer;
+    padding: 3px;
+    text-align: center;
+}
+
+#gifts-disp img {
+ 	margin-top: 3px;
+ 	margin-left: 3px;
+ 	margin-right: 3px;
+}
+
+div.nav-bar
+{
+	margin-top: 10px;
+	margin-bottom: 65px;
+}
+
+#submit {
+	font-size: 18px;
+	padding: 5px 10px;
+	text-decoration: none;
+}
+
+#report {
+	font-size: 18px;
+	padding: 5px 10px;
+	text-decoration: none;
+}
+
+div.profileimg {
+	float: right;
+	margin: 10px;
+	margin-top: 140px;
+	margin-left: -100px;
+}
+
+#logo {
+	float: left;
+	margin-left: 5px;
+	margin-top: 5px;
+	margin-right: 2px;
+}
+
+input[type=text]
+{
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+	width:250px;
+	min-height: 28px;
+	padding: 4px 20px 4px 8px;
+	font-size: 15px;
+	-moz-transition: all .2s linear;
+	-webkit-transition: all .2s linear;
+	transition: all .2s linear;
+	width: 300px;
+}
+
+table.usergames, tr {
+	width: 850px;
+}
+
+th.statsheader {
+	background-color: #dedede;
+}
+
+.r {
+	text-align: right;
+}
+
+table.stats, tr {
+	width: 850px;
+}
+
+p {
+	margin: 10px;
+}
+
+label { 
+    display: block; 
+    min-height: 100%; /* for the latest browsers which support min-height */
+    height: auto !important; /* for newer IE versions */
+    height: 100%; /* the only height-related attribute that IE6 does not ignore  */
+}
+
+div.updates {
+	margin: 5px;
+}

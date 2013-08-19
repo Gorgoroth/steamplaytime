@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block head %}
+	{{ super() }}
+	<title>Steam Playtime Unlisted Games</title>
+
+{% endblock %}
+
+{% block content %}
+	<h2 class="center">Check back here for some updates soon!</h2>
+	<p>This site pulls its data to calculate the number of hours played from <a href="http://howlongtobeat.com">HowLongToBeat.com</a>. This is great, but the caveat is that naming schemes aren't 100% consistent between what I pull from the Steam API and what HLTB stores. That means that for any games that don't have consistent names, it's largely a manual process to connect to the two naming schemes, so that we pull the correct times.</p>
+
+	<p>You can see the current number of games we have times for <a href="/stats">here</a>. The remaining apps we store from Steam are either not on HLTB at all, or have a different naming scheme. You'll notice that there's a seperate table for games we couldn't find when you look at your profile page.</p>
+
+	<p>In the near future I may open it up so that those interested can help with indexing the different naming conventions for games we can't find. Keep your eye on this if you would like to help out with that.</p>
+
+	<h2 class="center">Multiplayer only games</h2>
+
+	<p>An obvious flaw in the site currently is how it handles multiplayer only games. It currently just factors them all in with the others. I'd like to put a flag on all multiplayer only games, and have them not included in the counts by default. (Both in the hours needed, and your hours played.) There will be an option to include them as well.</p>
+
+	<p>Once I have time I may put a form, or some other way for people to report a game as multiplayer only (as I certainly won't catch them all by myself).</p>
+
+{% endblock content %}
+
+
+						

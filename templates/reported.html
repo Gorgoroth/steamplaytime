@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block head %}
+	{{ super() }}
+	<title>Steam Playtime</title>
+
+{% endblock %}
+
+{% block content %}
+	<h2 class="text-center">Thanks for reporting! We'll look into these as soon as possible.</h2>
+	<h4 class="text-center"><a href="/?steamid={{id}}">Return to profile</a></h4>
+
+{% endblock content %}

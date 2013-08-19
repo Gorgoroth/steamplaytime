@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block head %}
+	{{ super() }}
+	<title>Steam Playtime</title>
+
+{% endblock %}
+
+{% block content %}
+
+	{% if error %}
+		<h3 class="center">{{error|safe}}</h3>
+		<h4 class="center"><a href="/">Return Home</a></h4>
+
+	{% elif user %}
+		<h3 class="center">{{success}}</h3>
+		<h4 class="center"><a href="/?steamid={{steam_id}}">Return</a></h4>
+	{% endif %}
+
+
+{% endblock content %}
+
+
+						

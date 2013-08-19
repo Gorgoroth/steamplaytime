@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block head %}
+	{{ super() }}
+	<title>Steam Playtime - Error!</title>
+{% endblock %}
+{% block content %}
+	<h2 class="text-center text-danger" >Error'd/10!!</h2>
+	<hr>
+	<p class="text-center text-danger">{{error_message|safe}}</p>
+{% endblock content %}

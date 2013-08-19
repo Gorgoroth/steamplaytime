@@ -1,0 +1,13 @@
+cron:
+
+- description: games and hltb updater
+  url: /games
+  schedule: every monday 06:00
+
+- description: hltb updater
+  url: /hltb
+  schedule: every monday 06:10
+
+- description: ping pong counter updater
+  url: /stats-update
+  schedule: every 10 minutes synchronized

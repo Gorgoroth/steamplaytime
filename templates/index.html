@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block head %}
+	{{ super() }}
+	<title>Steam Playtime</title>
+
+{% endblock %}
+
+{% block content %}
+
+	<div class="text-center">
+		<h1 class="text-center">How long would it take to finish your Steam backlog?</h1>
+	
+		<form class="form-inline">
+			<div class="form-group">
+				<input type="text" class="form-control" name="steamid" placeholder="Enter your Steam ID or Profile URL to find out">
+				<button type="submit" class="btn btn-primary">Enlighten me!</button>
+			</div>
+		</form>
+	</div>
+	<br><br>
+
+	<div class="row">
+		<div class="col-lg-8 highlight">
+			<h4>Recent updates</h4>
+			<h5>August 3, 2013</h5>
+			<ul>
+				<li>Overhauled the design of the site. Not completely finished, so you may see a bit of weirdness here or there, as well as a few "unfinished" pages.</li>
+				<li>Working on implementing a few cool features - check back in a few days.</li>
+			</ul>
+			<h5>July 15, 2013</h5>
+			<ul>
+				<li>To remove your info from steamplaytime, set your Steam profile to <strong>private</strong>, then choose <strong>Update</strong> on your page here. It will be removed permanently from 	the database (or at least until you set your Steam profile public again).</li>
+				<li>You can now report games with incorrect data on your profile page. <a href="/unlistedgames">See this</a> for more info.</li>
+			</ul>
+		</div> 
+		<div class="col-lg-3 highlight" id="stats">
+			Unique IDs queried: {{"{:,}".format(ids)}}</br>
+			Total # of queries: {{"{:,}".format(queries)}}</br>
+			Pageviews: {{"{:,}".format(total)}}</br>
+			<p style="font-size: 12px">Stats updated every 10 minutes</p>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-lg-8 highlight text-center">
+			<h4>If you found this site useful or fun, and have a dollar or two to spare, consider donating in order to help pay for server costs.</h4>
+			<p>This will help keep the lights on and make it more likely that I'll be to add more features in the future, as well as keeping the site ad free.</p>
+		<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+			<input type="hidden" name="cmd" value="_s-xclick">
+			<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+		">
+			<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+			<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+		</form>
+		</div>
+	</div>
+
+
+
+{% endblock content %}

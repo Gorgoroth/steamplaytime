@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block head %}
+	{{ super() }}
+	<title>Steam Playtime Unlisted Games</title>
+
+{% endblock %}
+
+{% block content %}
+	<h2 class="center">Check back here for some updates soon!</h2>
+	<p>This site pulls its data to calculate the number of hours played from <a href="http://howlongtobeat.com">HowLongToBeat.com</a>. This is great, but the caveat is that naming schemes aren't 100% consistent between what I pull from the Steam API and what HLTB stores. That means that for any games that don't have consistent names, it's largely a manual process to connect to the two naming schemes, so that we pull the correct times.</p>
+
+	<p>If you happen to see some games that are incorrect, you can now report them on your profile page. Simply check the box next to the game names of whatever you see is wrong, and then enter the reason on the following page. This will help a lot in identifying which games have issues that need to be fixed first.</p>
+{% endblock content %}
+
+
+						

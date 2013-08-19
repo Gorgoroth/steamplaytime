@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block head %}
+	{{ super() }}
+	<title>Steam Playtime</title>
+
+{% endblock %}
+
+{% block content %}
+	<h3 class="center">Use the form below to report weirdness on the games you selected:</h3>
+
+	<form method="post" action="reported">
+
+		<div class="center">
+			<table class="table table-hover table-condensed">
+				<tr><th>Game Name</th><th class='l'>Game incorrectly states it doesn't exist in HLTB</th><th>HLTB has weird numbers for this game</th><th>This is multiplayer only</th><th>Other Issues</th></tr>
+				{% for game in games %}
+					<tr>
+						<td>{{game.game_name}}</td>
+						<td><label><input type="radio" name="{{game.appid}}" value="1"></label></td>
+						<td><label><input type="radio" name="{{game.appid}}" value="2"></label></td>
+						<td><label><input type="radio" name="{{game.appid}}" value="3"></label></td>
+						<td><label><input type="radio" name="{{game.appid}}" value="4"></label></td>
+					</tr>
+				{% endfor %}
+
+			</table>
+
+		</div>
+		<input type="hidden" name="id" value="{{steam_id}}">
+		<div class="text-center">
+			<button type="submit" class="btn btn-primary">Report!</button>
+		</div>
+
+	</form>
+
+
+{% endblock content %}

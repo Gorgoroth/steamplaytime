@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block head %}
+	{{ super() }}
+	<title>Steam Playtime</title>
+
+{% endblock %}
+
+{% block content %}
+
+	<div id="tweet">
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+
+	    <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://steamplaytime.appspot.com/" data-text="How many hours would it take to complete your Steam backlog?" data-lang="en">Tweet</a></div>
+
+	<h2 class="center">
+		Curious about how long it would <em>truly</em> take to finish your Steam backlog?
+	</h2>
+
+	<div class="center">
+		<form>
+			<input type="text" name="steamid" placeholder="Enter your Steam ID or Profile URL to find out">
+			<br><br>
+				<input type="submit" class="blue" id="submit" value="Enlighten me!">
+		</form>
+		<br><br>
+
+		Unique IDs queried: {{"{:,}".format(ids)}}</br>
+		Total # of queries: {{"{:,}".format(queries)}}</br>
+		Pageviews: {{"{:,}".format(total)}}</br>
+		<p style="font-size: 12px">Stats updated every 10 minutes</p>
+
+	</table>
+	</div>
+
+	<h4>Recent updates</h4>
+	<h5>July 14, 2013</h5>
+	<ul>
+		<li>Fixed some bugs that were causing a bunch of games to not show up properly</li>
+		<li>Added a bunch more multiplayer only games</li>
+		<li>Removed some games that were showing as duplicates. All in all, times should be more accurate now.</li>
+	</ul>
+	<h5>July 10, 2013</h5>
+	<ul>
+		<li>You can now choose to filter out multiplayer only games</li>
+		<li>Reduced the averages a bit for games not found on HLTB</li>
+		<li>Can now enter your Steam ID, Steam community id, or Steam Profile URL</li>
+	</ul>
+
+{% endblock content %}

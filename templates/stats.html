@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block head %}
+	{{ super() }}
+	<title>Steam Playtime Stats</title>
+
+{% endblock %}
+
+{% block content %}
+	<br>
+	<table class="table">
+		<tr><th>Steam Games*</th><th>Games w/HLTB times (%)</th><th>Average Main</th><th>Average Completion</th><th>Steam IDs queried</th><th>Total # of queries</th></tr>
+		<tr>
+			<td>
+				{{stats.total_steam}}
+			</td>
+			<td>
+				{{stats.total_with_hours}} ({{"%.2f" % ((stats.total_with_hours / stats.total_steam) * 100) }}%)
+			</td>
+			<td>
+				{{"%.2f" % stats.average_main}}
+			</td>
+			<td>
+				{{"%.2f" % stats.average_completion}}
+			</td>
+			<td>
+				{{ids}}
+			</td>
+			<td>
+				{{queries}}
+			</td>
+
+		</tr>
+	</table>
+
+	<p>* Note: This number is likely not completely accurate. The reason is that the method used to retrieve games from the Steam API also returns stuff like demos and trailers. A good chunk of those are not actually games. Additionally, the percentage of Games w/HLTB times should keep going up as we <a href="/unlistedgames">find more games with inconsistent titles.</a></p>
+
+{% endblock content %}
+
+
+						
