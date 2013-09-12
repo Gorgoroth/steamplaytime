@@ -26,8 +26,11 @@
     					<div class="nav-collapse collapse navbar-responsive-collapse">
     						<ul class="nav navbar-nav">
 								<li><a href="/about">Why? How?</a></li>
-								<li><a href="/stats">Site stats</a></li>
 								<li><a href="/unlistedgames">Help make this more accurate!</a></li>
+								{% if logged_in[0] %}
+									<li><a href="/?steamid={{logged_in[1]}}">My Account</a></li>
+								{% endif %}
+								<li>{{user_logged_url|safe}}</a></li>
 							</ul>
 						</div>
 					</div>
@@ -50,6 +53,10 @@
 				<script type="text/javascript"
 				src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 				</script></div>-->
+
+			{% if private %}
+				<h2 class="red text-center">Your Steam profile is set to Private. It must be set to Public to create an account.</h2>
+			{% endif %}
 
 				{% block content %}{% endblock content %}
 

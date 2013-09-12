@@ -23,6 +23,7 @@ from bs3.BeautifulSoup import BeautifulSoup
 from datetime import datetime
 from google.appengine.api import urlfetch
 from google.appengine.api.urlfetch_errors import DeadlineExceededError
+from specialcases import *
 urlfetch.set_default_fetch_deadline(60)
 
 

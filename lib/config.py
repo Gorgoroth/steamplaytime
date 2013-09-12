@@ -1,5 +1,5 @@
 
-api_key= "" # Steam API key
+api_key= "C1080ED9D0867CFF14C1CCD9EC5C9368" # Steam API key
 
 main_counter = 'main'
 stats_counter = 'stats'

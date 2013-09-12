@@ -40,6 +40,9 @@ class SteamIds(ndb.Model):
 	needed_main_nmp = ndb.FloatProperty()
 	needed_complete_nmp = ndb.FloatProperty()
 
+class Users(ndb.Model):
+	steam_id_obj = ndb.KeyProperty()
+	date_created = ndb.DateTimeProperty()
 
 class LostIds(ndb.Model):
 	appids = ndb.IntegerProperty(repeated=True)

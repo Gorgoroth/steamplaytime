@@ -59,6 +59,7 @@ class SteamUsers(SteamAPI):
 		"""
 
 		url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s" % (self.api_key, self.steam_id)
+		print url
 		json_data = self._get_json(url)
 
 		# A lot of what we do will depend on the visibility of the profile, so we'll 

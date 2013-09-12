@@ -5,13 +5,69 @@ import json
 import urllib2
 import counters
 import config
+import os
+import users
 from bs3.BeautifulSoup import BeautifulSoup
 from datastore.models import *
 from datetime import datetime, timedelta
 from random import choice
 from google.appengine.api import mail
 from google.appengine.api import datastore_errors
+from google.appengine.api import users as appengine_users
 from config import *
+
+
+ID_RE = r'http://steamcommunity.com/openid/id/([0-9]+)'
+def get_steam_id(federated_identity):
+    """Used to extract a SteamID from the OpenID identifier"""
+    steam_id = re.search(ID_RE, federated_identity)
+    if steam_id:
+        return steam_id.group(1)
+    else:
+        return None
+
+
+provider = "http://steamcommunity.com/openid"
+log_in_url = '<a href="%s"><img src="/images/sits_small.png" alt="Sign in through Steam"></a>' % appengine_users.create_login_url(federated_identity=provider)
+log_out_url = '<a href="%s">Log Out</a>' % appengine_users.create_logout_url("/")
+
+def confirm_user(user):
+    if user is None:
+        return (None, log_in_url, False)
+    else:
+        steam_id = get_steam_id(user.nickname())
+        if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
+            steam_id = "76561197990319574" # SenseiJinx
+            # steam_id = "76561198077101159" # Naiyt
+        if steam_id:
+            user, log_url, private = get_registered_user(steam_id)
+            return user, log_url, private
+
+
+def get_registered_user(steam_id):
+    user = Users.get_by_id(steam_id)
+    if user:
+        return user, log_out_url, False
+    else:
+        flat_steam_id = get_user(steam_id)
+        if flat_steam_id:
+            new_user = add_user(flat_steam_id)
+            return new_user, log_out_url, False
+        else:
+            stats = retrieve_stats()
+            flat_steam_id, rc = users.get_user(steam_id, stats)
+            if flat_steam_id:
+                new_user = add_user(flat_steam_id)
+                return new_user, log_out_url, False
+            else:
+                return None, log_in_url, True
+
+
+
+def add_user(user):
+    new_user = Users(id=user.steam_id, steam_id=user.key, date_created=datetime.now())
+    new_user.put()
+    return new_user
 
 
 def remove_specials(str):

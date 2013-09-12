@@ -5,7 +5,6 @@ import re
 import urllib
 import random
 import counters
-import specialcases
 from SteamAPI.Users import *
 from datastore.models import *
 from datetime import datetime, timedelta
@@ -13,6 +12,7 @@ from google.appengine.api import mail
 from config import *
 from bs3.BeautifulSoup import BeautifulSoup
 from google.appengine.api import memcache
+from specialcases import *
 
 
 # TODO: We should be mapping the return codes to variable names...it's nasty to return stuff like "4"

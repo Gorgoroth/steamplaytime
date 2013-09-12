@@ -8,6 +8,7 @@ from lib import utils
 from lib import hltb
 from lib import users
 from lib.config import *
+from google.appengine.api import users as appengine_users
 from google.appengine.api import taskqueue
 from google.appengine.api import mail
 from datetime import datetime, timedelta
@@ -42,6 +43,10 @@ Page handlers
 
 """
 
+provider = "http://steamcommunity.com/openid"
+log_in_url = '<a href="%s"><img src="/images/sits_small.png" alt="Sign in through Steam"></a>' % appengine_users.create_login_url(federated_identity=provider)
+log_out_url = '<a href="%s">Log Out</a>' % appengine_users.create_logout_url("/")
+
 class MainHandler(Handler):
     def get(self):
         """
@@ -56,11 +61,19 @@ class MainHandler(Handler):
 
         """
 
+
+
         counters.pingpong_incr(main_counter)
         steam_id = self.request.get('steamid')
+        p = self.request.get('p')
+        p = True if p == 'y' else False
         mp = self.request.get('mp')
         mp = True if mp == 'y' else False
         stats = utils.retrieve_stats()
+
+        user, user_logged_url, private = utils.confirm_user(appengine_users.get_current_user())
+        logged_in = (False, None) if user is None or private else (True, user.key.id())
+
 
         if stats.updating: # If we're performing maintanence
             self.render('updating.html')
@@ -103,26 +116,9 @@ class MainHandler(Handler):
                     error_msg = "I couldn't find a Steam account with the URL or ID of %s. Please try to enter either your Steam Community ID, or the full URL to your profile. <p class='center'><a href='/'>Try again?</a></p>" % steam_id
 
                 if have_error:
-                    self.render('error.html', error_message=error_msg)
+                    self.render('error.html', error_message=error_msg, user_logged_url=user_logged_url,logged_in=logged_in)
 
                 else:
-                    games = utils.find_games_by_id(user.games)
-                    games = [x for x in games if x is not None] # Just in case an appid in their list doesn't seem to exist
-                    
-                    # Filter out multiplayer only games if needed
-                    if mp is False:
-                        games = [x for x in games if x.multiplayer_only is False]
-
-                    # Chunk up those with HLTB stats and those without
-                    with_stats = [x for x in games if x.main is not None or x.completion is not None]
-                    without_stats = [x for x in games if x.main is None and x.completion is None]
-    
-                    with_stats = sorted(with_stats, key=lambda main: main.main, reverse=True)
-                    without_stats = sorted(without_stats, key=lambda name: name.game_name)      
-
-                    # Users games and hours are kept in parallel dictionaries in the datastore
-                    hours_and_games = dict(zip(user.games, user.hours))
-                    
                     # Dict with info to be sent to the Jinja2 template
                     user_hour_info = {}
                     if mp:
@@ -140,13 +136,58 @@ class MainHandler(Handler):
                         user_hour_info = {'played': "%.2f" % user.hours_without_mp, 'main_needed': "%.2f" % (user.hours_needed_main - user.needed_main_nmp), 'completion_needed':\
                         "%.2f" % (user.hours_needed_main - user.needed_complete_nmp), 'per_main':percent_main, 'per_complete': percent_complete,'days': days}
 
-                    self.render('details.html', user=user, notice=success_msg,with_stats=with_stats,
-                        without_stats=without_stats,stats=stats, hours_and_games=hours_and_games,mp=mp,user_hour_info=user_hour_info)
+                    self.render('details.html', user=user, notice=success_msg, stats=stats,
+                        mp=mp,user_hour_info=user_hour_info, user_logged_url=user_logged_url,logged_in=logged_in)
     
             else:
                 total_hits = utils.retrieve_hit_count()
                 total_queries, total_ids = utils.retrieve_counts()
-                self.render('index.html', total=total_hits,queries=total_queries,ids=total_ids)
+                if private:
+                    self.redirect(appengine_users.create_logout_url("/?p=y"))
+                self.render('index.html', total=total_hits,queries=total_queries,ids=total_ids, user_logged_url=user_logged_url,
+                    logged_in=logged_in, private=p)
+
+
+
+class UserGamesHandler(Handler):
+    def get(self):
+
+        counters.pingpong_incr(main_counter)
+        stats = utils.retrieve_stats()
+
+        if stats.updating: # If we're performing maintanence
+            self.render('updating.html')
+
+        else:
+            steam_id = self.request.get('steamid')
+    
+            user, user_logged_url, private = utils.confirm_user(appengine_users.get_current_user())
+            logged_in = (False, None) if user is None or private else (True, user.key.id())
+    
+            user, rc = users.get_user(steam_id, stats)
+    
+            mp = self.request.get('mp')
+            mp = True if mp == 'y' else False
+            games = utils.find_games_by_id(user.games)
+            games = [x for x in games if x is not None] # Just in case an appid in their list doesn't seem to exist
+            
+            # Filter out multiplayer only games if needed
+            if mp is False:
+                games = [x for x in games if x.multiplayer_only is False]
+    
+            # Chunk up those with HLTB stats and those without
+            with_stats = [x for x in games if x.main is not None or x.completion is not None]
+            without_stats = [x for x in games if x.main is None and x.completion is None]
+        
+            with_stats = sorted(with_stats, key=lambda main: main.main, reverse=True)
+            without_stats = sorted(without_stats, key=lambda name: name.game_name)      
+    
+            # Users games and hours are kept in parallel dictionaries in the datastore
+            hours_and_games = dict(zip(user.games, user.hours))
+    
+            self.render('games.html',user=user,with_stats=with_stats,without_stats=without_stats,
+                hours_and_games=hours_and_games,user_logged_url=user_logged_url,logged_in=logged_in,
+                stats=stats,mp=mp)
 
 
 class UpdateHandler(Handler):
@@ -154,7 +195,7 @@ class UpdateHandler(Handler):
         """
         Update users return codes:
         2 - Full, sucessful update
-        5 - Private profile, user removed
+        5 - private profile, user removed
         6 - Update failed. Too soon since last update.
         8 - Huh? That user doesn't exist.
 
@@ -162,6 +203,9 @@ class UpdateHandler(Handler):
 
         stats = utils.retrieve_stats()
         counters.pingpong_incr(update_counter)
+
+        user, user_logged_url, private = utils.confirm_user(appengine_users.get_current_user())
+        logged_in = (False, None) if user is None or private else (True, user.key.id())
 
         if stats.updating:
             self.render('updating.html')
@@ -192,9 +236,11 @@ class UpdateHandler(Handler):
                     error_msg = "%s doesn't exist in our database. Perhaps you meant to <a href='/?steamid=%s'>add it?</a>" % (steam_id, steam_id)
     
                 if have_error:
-                    self.render('update.html',error=error_msg,steam_id=steam_id)
+                    self.render('update.html',error=error_msg,steam_id=steam_id,user_logged_url=user_logged_url,
+                        logged_in=logged_in)
                 else:
-                    self.render('update.html',success=success_msg,user=user,steam_id=steam_id)
+                    self.render('update.html',success=success_msg,user=user,steam_id=steam_id,
+                        user_logged_url=user_logged_url,logged_in=logged_in)
     
             else:
                 self.redirect('/')
@@ -204,19 +250,28 @@ class UpdateHandler(Handler):
 class StatsHandler(Handler):
     def get(self):
         counters.pingpong_incr(stats_counter)
+        user, user_logged_url, private = utils.confirm_user(appengine_users.get_current_user())
+        logged_in = (False, None) if user is None or private else (True, user.key.id())
+
         stats = utils.retrieve_stats()
         queries, ids = utils.retrieve_counts()
-        self.render('stats.html',queries=queries,ids=ids,stats=stats)
+        self.render('stats.html',queries=queries,ids=ids,stats=stats, user_logged_url=user_logged_url,
+            logged_in=logged_in)
 
 class AboutHandler(Handler):
     def get(self):
         counters.pingpong_incr(about_counter)
-        self.render('about.html')
+        user, user_logged_url, private = utils.confirm_user(appengine_users.get_current_user())
+        logged_in = (False, None) if user is None or private else (True, user.key.id())
+
+        self.render('about.html', user_logged_url=user_logged_url,logged_in=logged_in)
 
 class UnlistedHandler(Handler):
     def get(self):
         counters.pingpong_incr(unlisted_counter)
-        self.render('unlisted.html')
+        user, user_logged_url, private = utils.confirm_user(appengine_users.get_current_user())
+        logged_in = (False, None) if user is None or private else (True, user.key.id())
+        self.render('unlisted.html', user_logged_url=user_logged_url,logged_in=logged_in)
 
 class GoogleHandler(Handler):
     """For the google analytics confirmation page"""
@@ -231,12 +286,15 @@ class Report(Handler):
 
     def post(self):
         counters.pingpong_incr(report_counter)
+        user, user_logged_url, private = utils.confirm_user(appengine_users.get_current_user())
+        logged_in = (False, None) if user is None or private else (True, user.key.id())
+
         games = self.request.get_all('a')
         games = utils.find_games_by_id(games)
         steam_id = self.request.get('id')
         games = [x for x in games if x is not None]
 
-        self.render('report.html',games=games,steam_id=steam_id)
+        self.render('report.html',games=games,steam_id=steam_id,user_logged_url=user_logged_url,logged_in=logged_in)
 
 class Reported(Handler):
     def get(self):
@@ -245,6 +303,8 @@ class Reported(Handler):
     def post(self):
         id = self.request.get('id')
         args = self.request.arguments()
+        user, user_logged_url, private = utils.confirm_user(appengine_users.get_current_user())
+        logged_in = (False, None) if user is None or private else (True, user.key.id())
         reasons = {}
         for arg in args:
             if arg != 'id':
@@ -255,7 +315,7 @@ class Reported(Handler):
                     utils.create_bad_id((arg, reason))
                 else:
                     utils.update_bad_id((arg, reason), bad_id)
-        self.render('reported.html',id=id)
+        self.render('reported.html',id=id,user_logged_url=user_logged_url,logged_in=logged_in)
 
 
 """
@@ -388,8 +448,9 @@ class UpdateStatsCron(Handler):
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
+    ('/games/?', UserGamesHandler),
     ('/update/?', UpdateHandler),
-    ('/games/?', GamesHandler),
+    ('/gamesupdate/?', GamesHandler),
     ('/gamesupdate/?', UpdateGamesHandler),
     ('/updateboth/?', UpdateBothHandler),
     ('/hltb/?', HLTBHandler),
@@ -401,5 +462,5 @@ app = webapp2.WSGIApplication([
     ('/stats-update', UpdateStatsCron),
     ('/report', Report),
     ('/reported', Reported),
-    ('/googlea179e97b99c3d427.html', GoogleHandler)
+    ('/googlea179e97b99c3d427.html', GoogleHandler),
 ], debug=False)
