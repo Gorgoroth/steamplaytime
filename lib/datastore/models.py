@@ -40,7 +40,7 @@ class SteamIds(ndb.Model):
 	needed_main_nmp = ndb.FloatProperty()
 	needed_complete_nmp = ndb.FloatProperty()
 
-class Users(ndb.Model):
+class RegUsers(ndb.Model):
 	steam_id_obj = ndb.KeyProperty()
 	date_created = ndb.DateTimeProperty()
 

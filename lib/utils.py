@@ -45,7 +45,7 @@ def confirm_user(user):
 
 
 def get_registered_user(steam_id):
-    user = Users.get_by_id(steam_id)
+    user = RegUsers.get_by_id(steam_id)
     if user:
         return user, log_out_url, False
     else:
@@ -65,7 +65,7 @@ def get_registered_user(steam_id):
 
 
 def add_user(user):
-    new_user = Users(id=user.steam_id, steam_id=user.key, date_created=datetime.now())
+    new_user = RegUsers(id=user.steam_id, steam_id_obj=user.key, date_created=datetime.now())
     new_user.put()
     return new_user
 
