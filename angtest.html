@@ -1,0 +1,395 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="myApp">
+
+	<head>
+		
+	
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="description" content="Estimates the amount of hours it would take to beat every game in your Steam Library">
+		<meta name="keywords" content="gaming, pc, games, steam, gifts" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+    	<script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.0.1/angular.min.js"></script>
+    	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap.min.css" rel="stylesheet">
+    	<script src="scripts/angular-dragdrop/angular-dragdrop.min.js"></script>
+		<script src="scripts/controllers.js"></script>
+
+		<style>
+      .thumbnail { height: 280px !important; }
+      .btn-droppable { width: 180px; height: 30px; padding-left: 4px; }
+      .img-draggable { width: 300px; }
+		</style>
+
+	<title>Steam Playtime</title>
+
+
+	</head>
+	<body>
+
+    <div ng-controller="oneCtrl">
+      <div class='contentWrapper ng-cloak'>
+        <div class='content'>
+          <div class="row-fluid">
+            <ul class="thumbnails">
+              <li class="span3" style='margin-left:10px;'>
+              	<h3>Beaten</h3>
+                <div class="thumbnail" data-drop="true" ng-model='list1' data-jqyoui-options="optionsList1" jqyoui-droppable="{multiple:true}">
+                  <div class="caption">
+                    <div class="img-draggable" ng-repeat="item in list1" ng-show="item.url" data-drag="{{item.drag}}" data-jqyoui-options="{revert: 'invalid'}" ng-model="list1" jqyoui-draggable="{index: {{$index}},animate:true}"><figure><img src="{{item.url}}"></img><figcaption>Hours: {{item.hours}}</figcaption></figure></div>
+                  </div>
+                </div>
+              </li>
+              <li class="span3" style='margin-left:10px;'>
+              	<h3>Unbeaten</h3>
+                <div class="thumbnail" data-drop="true" ng-model='list2' data-jqyoui-options="{accept:'.img-draggable:not([ng-model=list2])'}"  jqyoui-droppable="{multiple:true}">
+                  <div class="caption">
+                    <div class="img-draggable" ng-repeat="item in list2" ng-show="item.url" data-drag="{{item.drag}}" data-jqyoui-options="{revert: 'invalid'}" ng-model="list2" jqyoui-draggable="{index: {{$index}},animate:true}"><figure><img src="{{item.url}}"></img><figcaption>Hours: {{item.hours}}</figcaption></figure></div>
+                  </div>
+                </div>
+              </li>
+              <li class="span3" style='margin-left:10px;'>
+              	<h3>Not Interested</h3>
+                <div class="thumbnail" data-drop="true" ng-model='list3' data-jqyoui-options="{accept:'.img-draggable:not([ng-model=list3])'}"  jqyoui-droppable="{multiple:true}">
+                  <div class="caption">
+                    <div class="img-draggable" ng-repeat="item in list3" ng-show="item.url" data-drag="{{item.drag}}" data-jqyoui-options="{revert: 'invalid'}" ng-model="list3" jqyoui-draggable="{index: {{$index}},animate:true}"><figure><img src="{{item.url}}"></img><figcaption>Hours: {{item.hours}}</figcaption></figure></div>
+                  </div>
+                </div>
+              </li>
+              <li class="span3" style='margin-left:10px;'>
+              	<h3>Evil</h3>
+                <div class="thumbnail" data-drop="true" ng-model='list4' data-jqyoui-options="{accept:'.img-draggable:not([ng-model=list4])'}"  jqyoui-droppable="{multiple:true}">
+                  <div class="caption">
+                    <div class="img-draggable" ng-repeat="item in list4" ng-show="item.url" data-drag="{{item.drag}}" data-jqyoui-options="{revert: 'invalid'}" ng-model="list4" jqyoui-draggable="{index: {{$index}},animate:true}"><figure><img src="{{item.url}}"></img><figcaption>Hours: {{item.hours}}</figcaption></figure></div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="navbar-inner">
+        <div class="container form-inline" style="text-align: center;">
+          <div ng-repeat="item in list5" data-drop="true" ng-model='list5' data-jqyoui-options="{accept:'.img-draggable:not([ng-model=list5])'}"  jqyoui-droppable="{index: {{$index}}}">
+            <div class="img-draggable" data-drag="{{item.drag}}" data-jqyoui-options="{revert: 'invalid'}" ng-model="list5" jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}" ng-hide="!item.url"><figure><img src="{{item.url}}"></img><figcaption>Hours: {{item.hours}}</figcaption></figure></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+	<!--<h3>Beaten</h3>
+	<ul class="thumbnails">
+		<li class="span3" style="margin-left: 1px;">
+			<div class="thumbnail" data-drop="true" ng-model="beaten" data-jqyoui-options="beatenList" jqyoui-droppable="{multiple:true}">
+				<div class="caption">
+					<div class="dragging" ng-repeat="game in games" ng-show="game.url" data-drag="{{game.drag}}" data-jqyoui-options ng-model="games" jqyoui-draggable="{animate:true}"><img src="{{game.url}}"></img>
+					</div>
+			</div>
+		</li>
+		<h3>Haven't Beaten</h3>
+		<li class="span3" style="margin-left: 1px;">
+			<div class="thumbnail" data-drop="true" ng-model="beaten" data-jqyoui-options="beatenList" jqyoui-droppable="{multiple:true}">
+				<div class="caption">
+					<div class="dragging" ng-repeat="game in unbeaten" ng-show="game.url" data-drag="{{game.drag}}" data-jqyoui-options ng-model="games" jqyoui-draggable="{animate:true}"><img src="{{game.url}}"></img>
+					</div>
+			</div>
+		</li>
+	</ul>-->
+
+
+
+
+	<!--<div class="dragging" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" ng-model="metro" jqyoui-draggable="{animate:true}"><img src="http://cdn3.steampowered.com/v/gfx/apps/43160/header_292x136.jpg?t=1379520955"></img></div>
+
+	<div class="thumbnail" data-drop="true" data-jqyoui-options ng-model="beaten" jqyoui-droppable style='height:200px;'>
+
+	</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		<div class="container">
+			<div class="top-nav">
+				<div class="navbar">
+					<div class="container">
+						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+							      <span class="icon-bar"></span>
+     							  <span class="icon-bar"></span>
+     							  <span class="icon-bar"></span>
+    					</button>
+	
+    					<a class="navbar-brand" href="/">SteamPlaytime</a>
+    					<div class="nav-collapse collapse navbar-responsive-collapse">
+    						<ul class="nav navbar-nav">
+								<li><a href="/about">Why? How?</a></li>
+								<li><a href="/unlistedgames">Help make this more accurate!</a></li>
+								
+									<li><a href="/?steamid=76561197990319574">My Account</a></li>
+								
+								<li><a href="/_ah/login?continue=http%3A//localhost%3A8080/&action=logout">Log Out</a></a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+		<hr>
+
+				
+
+	<div>-->
+
+	</body>
+
+</html>
+		
+
+	<!--<h2 class="text-center"><a href="/?steamid=76561197990319574">Nate's</a> Games</h2>
+	<h4 class="text-center">See any that have inaccurate or weird values? Check the box to the left of the game name, and then hit the submit button at the bottom of the page to report them.</h4>
+	<ul>
+		<li>Click the hours below to link to their respective <a href="http://howlongtobeat.com">HowLongToBeat</a> pages.</li>
+		<li>Any entry marked with <strong>*</strong> does not have an entry on HowLongToBeat, and we have used the <a href="/stats">current average</a> for that calculation.</li>
+	</ul>
+
+	<form class="text-center">
+		
+			<input type="hidden" name="mp" value="y">
+			<input type="hidden" name="steamid" value="76561197990319574">
+			<button type="submit" class="btn btn-primary">Include multiplayer only games</button>
+		
+	</form>
+
+	<br>
+
+	<table class="table table-hover table-condensed">
+		<form action="/report" method="post">
+		<tr><th></th><th>Game</th><th>Main Story</th><th>Completionist</th><th>Nate's Hours</th></tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="47810" id="game_checkbox_47810"></td>
+				<td><label for="game_checkbox_47810"><a href="http://store.steampowered.com/app/47810">Dragon Age: Origins - Ultimate Edition</a></label></td>
+				
+					<td><label for="game_checkbox_47810"><a href="http://www.howlongtobeat.com/game.php?id=2767">53.0</a></label></td>
+				
+				
+					<td><label for="game_checkbox_47810"><a href="http://www.howlongtobeat.com/game.php?id=2767">87.5</a></label></td>
+				
+				<td><label for="game_checkbox_47810">0.1</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="211420" id="game_checkbox_211420"></td>
+				<td><label for="game_checkbox_211420"><a href="http://store.steampowered.com/app/211420">Dark Souls: Prepare To Die Edition</a></label></td>
+				
+					<td><label for="game_checkbox_211420"><a href="http://www.howlongtobeat.com/game.php?id=2227">47.0</a></label></td>
+				
+				
+					<td><label for="game_checkbox_211420"><a href="http://www.howlongtobeat.com/game.php?id=2227">83.0</a></label></td>
+				
+				<td><label for="game_checkbox_211420">296.0</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="20900" id="game_checkbox_20900"></td>
+				<td><label for="game_checkbox_20900"><a href="http://store.steampowered.com/app/20900">The Witcher: Enhanced Edition Director&#39;s Cut</a></label></td>
+				
+					<td><label for="game_checkbox_20900"><a href="http://www.howlongtobeat.com/game.php?id=10267">41.5</a></label></td>
+				
+				
+					<td><label for="game_checkbox_20900"><a href="http://www.howlongtobeat.com/game.php?id=10267">63.5</a></label></td>
+				
+				<td><label for="game_checkbox_20900">43.0</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="12500" id="game_checkbox_12500"></td>
+				<td><label for="game_checkbox_12500"><a href="http://store.steampowered.com/app/12500">PuzzleQuest: Challenge of the Warlords</a></label></td>
+				
+					<td><label for="game_checkbox_12500"><a href="http://www.howlongtobeat.com/game.php?id=7427">37.0</a></label></td>
+				
+				
+					<td><label for="game_checkbox_12500"><a href="http://www.howlongtobeat.com/game.php?id=7427">59.5</a></label></td>
+				
+				<td><label for="game_checkbox_12500">0.0</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="22380" id="game_checkbox_22380"></td>
+				<td><label for="game_checkbox_22380"><a href="http://store.steampowered.com/app/22380">Fallout: New Vegas</a></label></td>
+				
+					<td><label for="game_checkbox_22380"><a href="http://www.howlongtobeat.com/game.php?id=3351">31.5</a></label></td>
+				
+				
+					<td><label for="game_checkbox_22380"><a href="http://www.howlongtobeat.com/game.php?id=3351">107.5</a></label></td>
+				
+				<td><label for="game_checkbox_22380">14.2</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="72850" id="game_checkbox_72850"></td>
+				<td><label for="game_checkbox_72850"><a href="http://store.steampowered.com/app/72850">The Elder Scrolls V: Skyrim</a></label></td>
+				
+					<td><label for="game_checkbox_72850"><a href="http://www.howlongtobeat.com/game.php?id=9859">31.0</a></label></td>
+				
+				
+					<td><label for="game_checkbox_72850"><a href="http://www.howlongtobeat.com/game.php?id=9859">182.0</a></label></td>
+				
+				<td><label for="game_checkbox_72850">32.0</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="105600" id="game_checkbox_105600"></td>
+				<td><label for="game_checkbox_105600"><a href="http://store.steampowered.com/app/105600">Terraria</a></label></td>
+				
+					<td><label for="game_checkbox_105600"><a href="http://www.howlongtobeat.com/game.php?id=9705">29.0</a></label></td>
+				
+				
+					<td><label for="game_checkbox_105600"><a href="http://www.howlongtobeat.com/game.php?id=9705">124.0</a></label></td>
+				
+				<td><label for="game_checkbox_105600">0.4</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="4540" id="game_checkbox_4540"></td>
+				<td><label for="game_checkbox_4540"><a href="http://store.steampowered.com/app/4540">Titan Quest</a></label></td>
+				
+					<td><label for="game_checkbox_4540"><a href="http://www.howlongtobeat.com/game.php?id=10379">24.5</a></label></td>
+				
+				
+					<td><label for="game_checkbox_4540"><a href="http://www.howlongtobeat.com/game.php?id=10379">73.0</a></label></td>
+				
+				<td><label for="game_checkbox_4540">0.0</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="2600" id="game_checkbox_2600"></td>
+				<td><label for="game_checkbox_2600"><a href="http://store.steampowered.com/app/2600">Vampire: The Masquerade - Bloodlines</a></label></td>
+				
+					<td><label for="game_checkbox_2600"><a href="http://www.howlongtobeat.com/game.php?id=10890">24.0</a></label></td>
+				
+				
+					<td><label for="game_checkbox_2600"><a href="http://www.howlongtobeat.com/game.php?id=10890">43.0</a></label></td>
+				
+				<td><label for="game_checkbox_2600">2.5</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="6910" id="game_checkbox_6910"></td>
+				<td><label for="game_checkbox_6910"><a href="http://store.steampowered.com/app/6910">Deus Ex: Game of the Year Edition</a></label></td>
+				
+					<td><label for="game_checkbox_6910"><a href="http://www.howlongtobeat.com/game.php?id=2486">24.0</a></label></td>
+				
+				
+					<td><label for="game_checkbox_6910"><a href="http://www.howlongtobeat.com/game.php?id=2486">31.0</a></label></td>
+				
+				<td><label for="game_checkbox_6910">57.0</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="207650" id="game_checkbox_207650"></td>
+				<td><label for="game_checkbox_207650"><a href="http://store.steampowered.com/app/207650">A Virus Named TOM</a></label></td>
+				
+					<td><label for="game_checkbox_207650"><a href="http://www.howlongtobeat.com/game.php?id=143">24.0</a></label></td>
+				
+				
+					<td><label for="game_checkbox_207650"><a href="http://www.howlongtobeat.com/game.php?id=143">22.84</a><strong>*</strong></label></td>
+				
+				<td><label for="game_checkbox_207650">0.0</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="15710" id="game_checkbox_15710"></td>
+				<td><label for="game_checkbox_15710"><a href="http://store.steampowered.com/app/15710">Oddworld: Abe&#39;s Exoddus</a></label></td>
+				
+					<td><label for="game_checkbox_15710"><a href="None">23.0</a></label></td>
+				
+				
+					<td><label for="game_checkbox_15710"><a href="None">12.0</a></label></td>
+				
+				<td><label for="game_checkbox_15710">0.0</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="211740" id="game_checkbox_211740"></td>
+				<td><label for="game_checkbox_211740"><a href="http://store.steampowered.com/app/211740">Thief II: The Metal Age</a></label></td>
+				
+					<td><label for="game_checkbox_211740"><a href="http://www.howlongtobeat.com/game.php?id=10298">22.0</a></label></td>
+				
+				
+					<td><label for="game_checkbox_211740"><a href="http://www.howlongtobeat.com/game.php?id=10298">22.0</a></label></td>
+				
+				<td><label for="game_checkbox_211740">0.0</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="8980" id="game_checkbox_8980"></td>
+				<td><label for="game_checkbox_8980"><a href="http://store.steampowered.com/app/8980">Borderlands</a></label></td>
+				
+					<td><label for="game_checkbox_8980"><a href="http://www.howlongtobeat.com/game.php?id=1273">21.5</a></label></td>
+				
+				
+					<td><label for="game_checkbox_8980"><a href="http://www.howlongtobeat.com/game.php?id=1273">52.5</a></label></td>
+				
+				<td><label for="game_checkbox_8980">0.0</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="20920" id="game_checkbox_20920"></td>
+				<td><label for="game_checkbox_20920"><a href="http://store.steampowered.com/app/20920">The Witcher 2: Assassins of Kings Enhanced Edition</a></label></td>
+				
+					<td><label for="game_checkbox_20920"><a href="http://www.howlongtobeat.com/game.php?id=10268">20.5</a></label></td>
+				
+				
+					<td><label for="game_checkbox_20920"><a href="http://www.howlongtobeat.com/game.php?id=10268">52.0</a></label></td>
+				
+				<td><label for="game_checkbox_20920">46.0</label></td>
+			</tr>
+		
+			<tr>
+				<td><input type="checkbox" name="a" value="28050" id="game_checkbox_28050"></td>
+				<td><label for="game_checkbox_28050"><a href="http://store.steampowered.com/app/28050">Deus Ex: Human Revolution</a></label></td>
+				
+					<td><label for="game_checkbox_28050"><a href="http://www.howlongtobeat.com/game.php?id=2489">19.5</a></label></td>
+				
+				
+					<td><label for="game_checkbox_28050"><a href="http://www.howlongtobeat.com/game.php?id=2489">43.5</a></label></td>
+				
+				<td><label for="game_checkbox_28050">124.0</label></td>
+			</tr>
+		
+	</table>
+		<div class="text-center">
+			<input type="hidden" name="id" value="76561197990319574">
+			<br>
+			<button type="submit" class="btn btn-primary">Report inaccurate numbers</button>
+		</div>
+	</form>
+	</div>
+		
+		<hr>
+
+			<div class="text-right"><a href="http://steampowered.com">Powered by Steam</a></div>
+
+		</div>-->
+	</body>
+
+</html>
+		

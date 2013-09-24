@@ -2,80 +2,107 @@
 {% block head %}
 	{{ super() }}
 	<title>Steam Playtime</title>
+   	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+   	<script src="scripts/angular-dragdrop/angular-dragdrop.min.js"></script>
+
+   	<script>
+   		var app = angular.module('myApp', ['ngDragDrop']);
+		app.config(function($interpolateProvider) {
+  			$interpolateProvider.startSymbol('//');
+  			$interpolateProvider.endSymbol('//');
+		});
+
+		app.controller('gameCtrl', function($scope, $timeout) {
+  			$scope.beaten = [];
+  			$scope.unbeaten = [];
+  			$scope.playing = [];
+  			$scope.not_interested = [];
+  			$scope.hello = "Hello";
+  			
+  			$scope.unsorted = [
+  			  {% for game in with_stats %}
+  			  	{ 'url': '{{game.image_url}}', 'hours': {{game.main}}, 'drag': true },
+  			  {% endfor %}
+  			];
+  		});
+   	</script>
+
+
 
 {% endblock %}
 
 {% block content %}
-
-	<div>
-
-	<h2 class="text-center"><a href="/?steamid={{user.steam_id}}">{{user.username}}'s</a> Games</h2>
-	<h4 class="text-center">See any that have inaccurate or weird values? Check the box to the left of the game name, and then hit the submit button at the bottom of the page to report them.</h4>
-	<ul>
-		<li>Click the hours below to link to their respective <a href="http://howlongtobeat.com">HowLongToBeat</a> pages.</li>
-		<li>Any entry marked with <strong>*</strong> does not have an entry on HowLongToBeat, and we have used the <a href="/stats">current average</a> for that calculation.</li>
-	</ul>
-
-	<form class="text-center">
-		{% if mp %}
-			<input type="hidden" name="mp" value="n">
-			<input type="hidden" name="steamid" value="{{user.steam_id}}">
-			<button type="submit" class="btn btn-primary">Filter out multiplayer only games</button>
-		{% else %}
-			<input type="hidden" name="mp" value="y">
-			<input type="hidden" name="steamid" value="{{user.steam_id}}">
-			<button type="submit" class="btn btn-primary">Include multiplayer only games</button>
-		{% endif %}
-	</form>
-
-	<br>
-
-	<table class="table table-hover table-condensed">
-		<form action="/report" method="post">
-		<tr><th></th><th>Game</th><th>Main Story</th><th>Completionist</th><th>{{user.username}}'s Hours</th></tr>
-		{% for game in with_stats %}
-			<tr>
-				<td><input type="checkbox" name="a" value="{{game.appid}}" id="game_checkbox_{{game.appid}}"></td>
-				<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.store_url}}">{{game.game_name}}</a></label></td>
-				{% if game.main %}
-					<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.hltburl}}">{{game.main}}</a></label></td>
-				{% else %}
-					<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.hltburl}}">{{"%.2f" % (stats.average_main)}}</a><strong>*</strong></label></td>
-				{% endif %}
-				{% if game.completion %}
-					<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.hltburl}}">{{game.completion}}</a></label></td>
-				{% else %}
-					<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.hltburl}}">{{"%.2f" % (stats.average_completion)}}</a><strong>*</strong></label></td>
-				{% endif %}
-				<td><label for="game_checkbox_{{game.appid}}">{{hours_and_games[game.appid]}}</label></td>
-			</tr>
-		{% endfor %}
-	</table>
-
-	<br>
-
+	<div ng-app="myApp" ng-controller="gameCtrl">
+		<div class="games" ng-repeat="game in unsorted"><img src="//game.url//"></img></div>
+		<div>
 	
-		<h4 class="text-center">We were unable to find a HowLongToBeat.com entry for any of the following games belonging to {{user.username}}.<br>We have used the <a href="/stats">current average</a> instead.</h4>
-	<table class="table table-hover table-condensed">
-		<tr><th></th><th>Game</th><th>Main Story</th><th>Completionist</th><th>{{user.username}}'s Hours</th></tr>
-		{% for game in without_stats %}
-			<tr>
-				<td><input type="checkbox" name="a" value="{{game.appid}}" id="game_checkbox_{{game.appid}}"></td>
-				<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.store_url}}">{{game.game_name}}</a></label></td>
-				<td><label for="game_checkbox_{{game.appid}}">{{"%.2f" % (stats.average_main)}}</label></td>
-				<td><label for="game_checkbox_{{game.appid}}">{{"%.2f" % (stats.average_completion)}}</label></td>
-				<td><label for="game_checkbox_{{game.appid}}">{{hours_and_games[game.appid]}}</label></td>
-			</tr>
-		{% endfor %}
-	</table>
-		<div class="text-center">
-			<input type="hidden" name="id" value="{{user.steam_id}}">
-			<br>
-			<button type="submit" class="btn btn-primary">Report inaccurate numbers</button>
+		<h2 class="text-center"><a href="/?steamid={{user.steam_id}}">{{user.username}}'s</a> Games</h2>
+		<h4 class="text-center">See any that have inaccurate or weird values? Check the box to the left of the game name, and then hit the submit button 	at the bottom of the page to report them.</h4>
+		<ul>
+			<li>Click the hours below to link to their respective <a href="http://howlongtobeat.com">HowLongToBeat</a> pages.</li>
+			<li>Any entry marked with <strong>*</strong> does not have an entry on HowLongToBeat, and we have used the <a href="/stats">current average</a	> for that calculation.</li>
+		</ul>
+	
+		<form class="text-center">
+			{% if mp %}
+				<input type="hidden" name="mp" value="n">
+				<input type="hidden" name="steamid" value="{{user.steam_id}}">
+				<button type="submit" class="btn btn-primary">Filter out multiplayer only games</button>
+			{% else %}
+				<input type="hidden" name="mp" value="y">
+				<input type="hidden" name="steamid" value="{{user.steam_id}}">
+				<button type="submit" class="btn btn-primary">Include multiplayer only games</button>
+			{% endif %}
+		</form>
+	
+		<br>
+	
+		<table class="table table-hover table-condensed">
+			<form action="/report" method="post">
+			<tr><th></th><th>Game</th><th>Main Story</th><th>Completionist</th><th>{{user.username}}'s Hours</th></tr>
+			{% for game in with_stats %}
+				<tr>
+					<td><input type="checkbox" name="a" value="{{game.appid}}" id="game_checkbox_{{game.appid}}"></td>
+					<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.store_url}}">{{game.game_name}}</a></label></td>
+					{% if game.main %}
+						<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.hltburl}}">{{game.main}}</a></label></td>
+					{% else %}
+						<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.hltburl}}">{{"%.2f" % (stats.average_main)}}</a><strong>*</strong></	label></td>
+					{% endif %}
+					{% if game.completion %}
+						<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.hltburl}}">{{game.completion}}</a></label></td>
+					{% else %}
+						<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.hltburl}}">{{"%.2f" % (stats.average_completion)}}</a><strong>*</	strong></label></td>
+					{% endif %}
+					<td><label for="game_checkbox_{{game.appid}}">{{hours_and_games[game.appid]}}</label></td>
+				</tr>
+			{% endfor %}
+		</table>
+	
+		<br>
+	
+		
+			<h4 class="text-center">We were unable to find a HowLongToBeat.com entry for any of the following games belonging to {{user.username}}.<br>We 	have used the <a href="/stats">current average</a> instead.</h4>
+		<table class="table table-hover table-condensed">
+			<tr><th></th><th>Game</th><th>Main Story</th><th>Completionist</th><th>{{user.username}}'s Hours</th></tr>
+			{% for game in without_stats %}
+				<tr>
+					<td><input type="checkbox" name="a" value="{{game.appid}}" id="game_checkbox_{{game.appid}}"></td>
+					<td><label for="game_checkbox_{{game.appid}}"><a href="{{game.store_url}}">{{game.game_name}}</a></label></td>
+					<td><label for="game_checkbox_{{game.appid}}">{{"%.2f" % (stats.average_main)}}</label></td>
+					<td><label for="game_checkbox_{{game.appid}}">{{"%.2f" % (stats.average_completion)}}</label></td>
+					<td><label for="game_checkbox_{{game.appid}}">{{hours_and_games[game.appid]}}</label></td>
+				</tr>
+			{% endfor %}
+		</table>
+			<div class="text-center">
+				<input type="hidden" name="id" value="{{user.steam_id}}">
+				<br>
+				<button type="submit" class="btn btn-primary">Report inaccurate numbers</button>
+			</div>
+		</form>
 		</div>
-	</form>
 	</div>
-
 
 
 {% endblock content %}

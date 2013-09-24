@@ -47,7 +47,6 @@ class Games(SteamAPI):
 
 	def get_games_from(self, url, url_property):
 		url_info = self._open_url(url)
-	
 		all_games = []
 		if url_info is not None:
 			soup = BeautifulSoup(url_info)
@@ -105,9 +104,13 @@ class Games(SteamAPI):
 
 	def _image_url(self, appid, url_property):
 		if url_property == "sub":
-			return "http://cdn2.steampowered.com/v/gfx/subs/%s/header_292x136.jpg" % appid
+			return "http://cdn2.steampowered.com/v/gfx/subs/%s/capsule_184x69.jpg" % appid
 		else:
-			return "http://cdn.steampowered.com/v/gfx/apps/%s/header_292x136.jpg" % appid
+			
+			url = "http://cdn.steampowered.com/v/gfx/apps/%s/capsule_184x69.jpg" % appid
+			logging.error("Url: {}".format(url))
+			
+			return "http://cdn.steampowered.com/v/gfx/apps/%s/capsule_184x69.jpg" % appid
 
 	def get_all(self):
 		"""Return all info about Steam games"""

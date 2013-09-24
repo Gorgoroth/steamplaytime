@@ -73,3 +73,7 @@ label {
 .red {
   color: red;
 }
+
+div.dragging {
+  cursor: pointer;
+}

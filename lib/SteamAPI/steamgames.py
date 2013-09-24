@@ -197,7 +197,7 @@ class Game(Base):
 				except KeyError:
 					self.supported_languages = None
 
-				self.header_image = data['header_image']
+				self.header_image = "http://cdn.steampowered.com/v/gfx/apps/%s/capsule_184x69.jpg" % self.appid
 				self.website = data['website']
 
 				try:

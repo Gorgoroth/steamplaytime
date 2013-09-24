@@ -76,7 +76,7 @@ class MainHandler(Handler):
 
 
         if stats.updating: # If we're performing maintanence
-            self.render('updating.html')
+            self.render('updating.html', logged_in=False)
 
         else:
             if steam_id:
@@ -156,7 +156,7 @@ class UserGamesHandler(Handler):
         stats = utils.retrieve_stats()
 
         if stats.updating: # If we're performing maintanence
-            self.render('updating.html')
+            self.render('updating.html', logged_in=False)
 
         else:
             steam_id = self.request.get('steamid')
@@ -164,30 +164,35 @@ class UserGamesHandler(Handler):
             user, user_logged_url, private = utils.confirm_user(appengine_users.get_current_user())
             logged_in = (False, None) if user is None or private else (True, user.key.id())
     
-            user, rc = users.get_user(steam_id, stats)
-    
-            mp = self.request.get('mp')
-            mp = True if mp == 'y' else False
-            games = utils.find_games_by_id(user.games)
-            games = [x for x in games if x is not None] # Just in case an appid in their list doesn't seem to exist
-            
-            # Filter out multiplayer only games if needed
-            if mp is False:
-                games = [x for x in games if x.multiplayer_only is False]
-    
-            # Chunk up those with HLTB stats and those without
-            with_stats = [x for x in games if x.main is not None or x.completion is not None]
-            without_stats = [x for x in games if x.main is None and x.completion is None]
+            logging.error(logged_in[0])
+            if logged_in[0] is False:
+                logging.error("Hi you")
+                self.redirect('/')
+            else:
+                user, rc = users.get_user(steam_id, stats)
         
-            with_stats = sorted(with_stats, key=lambda main: main.main, reverse=True)
-            without_stats = sorted(without_stats, key=lambda name: name.game_name)      
-    
-            # Users games and hours are kept in parallel dictionaries in the datastore
-            hours_and_games = dict(zip(user.games, user.hours))
-    
-            self.render('games.html',user=user,with_stats=with_stats,without_stats=without_stats,
-                hours_and_games=hours_and_games,user_logged_url=user_logged_url,logged_in=logged_in,
-                stats=stats,mp=mp)
+                mp = self.request.get('mp')
+                mp = True if mp == 'y' else False
+                games = utils.find_games_by_id(user.games)
+                games = [x for x in games if x is not None] # Just in case an appid in their list doesn't seem to exist
+                
+                # Filter out multiplayer only games if needed
+                if mp is False:
+                    games = [x for x in games if x.multiplayer_only is False]
+        
+                # Chunk up those with HLTB stats and those without
+                with_stats = [x for x in games if x.main is not None or x.completion is not None]
+                without_stats = [x for x in games if x.main is None and x.completion is None]
+            
+                with_stats = sorted(with_stats, key=lambda main: main.main, reverse=True)
+                without_stats = sorted(without_stats, key=lambda name: name.game_name)      
+        
+                # Users games and hours are kept in parallel dictionaries in the datastore
+                hours_and_games = dict(zip(user.games, user.hours))
+        
+                self.render('games.html',user=user,with_stats=with_stats,without_stats=without_stats,
+                    hours_and_games=hours_and_games,user_logged_url=user_logged_url,logged_in=logged_in,
+                    stats=stats,mp=mp)
 
 
 class UpdateHandler(Handler):
@@ -208,7 +213,7 @@ class UpdateHandler(Handler):
         logged_in = (False, None) if user is None or private else (True, user.key.id())
 
         if stats.updating:
-            self.render('updating.html')
+            self.render('updating.html', logged_in=False)
         else:
             steam_id = self.request.get('steamid')
             if steam_id:
@@ -331,12 +336,6 @@ class HLTBHandler(Handler):
         taskqueue.add(url='/admintaskhandler', params={'hltb': 'y'})
         self.response.write('Getting them there times!')
 
-class GamesHandler(Handler):
-    def get(self):
-        games.get_games() # use for testing
-        #taskqueue.add(url='/admintaskhandler', params={'games': 'y'})
-        self.response.write('Got them there games!')
-
 class UpdateGamesHandler(Handler):
     def get(self):
         #games.update_games() # Use for testing
@@ -450,7 +449,6 @@ app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/games/?', UserGamesHandler),
     ('/update/?', UpdateHandler),
-    ('/gamesupdate/?', GamesHandler),
     ('/gamesupdate/?', UpdateGamesHandler),
     ('/updateboth/?', UpdateBothHandler),
     ('/hltb/?', HLTBHandler),
