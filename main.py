@@ -4,6 +4,7 @@ import jinja2
 import time
 import logging
 import urllib
+import json
 from lib import utils
 from lib import hltb
 from lib import users
@@ -20,9 +21,11 @@ import collections
 import operator
 
 
+
 jinja_environment = jinja2.Environment(autoescape=True,
     loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
 jinja_environment.globals['len'] = len
+jinja_environment.filters['tojson'] = json.dumps
 
 class Handler(webapp2.RequestHandler):
     """Base class that handles writing and rendering (from Steve Huffman, CS 253)"""
@@ -60,8 +63,6 @@ class MainHandler(Handler):
         7 - Bad Steam ID
 
         """
-
-
 
         counters.pingpong_incr(main_counter)
         steam_id = self.request.get('steamid')
@@ -161,12 +162,10 @@ class UserGamesHandler(Handler):
         else:
             steam_id = self.request.get('steamid')
     
-            user, user_logged_url, private = utils.confirm_user(appengine_users.get_current_user())
-            logged_in = (False, None) if user is None or private else (True, user.key.id())
-    
-            logging.error(logged_in[0])
+            reg_user, user_logged_url, private = utils.confirm_user(appengine_users.get_current_user())
+            logged_in = (False, None) if reg_user is None or private else (True, reg_user.key.id())
+
             if logged_in[0] is False:
-                logging.error("Hi you")
                 self.redirect('/')
             else:
                 user, rc = users.get_user(steam_id, stats)
@@ -178,22 +177,31 @@ class UserGamesHandler(Handler):
                 
                 # Filter out multiplayer only games if needed
                 if mp is False:
-                    games = [x for x in games if x.multiplayer_only is False]
-        
-                # Chunk up those with HLTB stats and those without
-                with_stats = [x for x in games if x.main is not None or x.completion is not None]
-                without_stats = [x for x in games if x.main is None and x.completion is None]
-            
-                with_stats = sorted(with_stats, key=lambda main: main.main, reverse=True)
-                without_stats = sorted(without_stats, key=lambda name: name.game_name)      
-        
+                    games = [x for x in games if x.multiplayer_only is False]    
+
                 # Users games and hours are kept in parallel dictionaries in the datastore
                 hours_and_games = dict(zip(user.games, user.hours))
-        
-                self.render('games.html',user=user,with_stats=with_stats,without_stats=without_stats,
-                    hours_and_games=hours_and_games,user_logged_url=user_logged_url,logged_in=logged_in,
-                    stats=stats,mp=mp)
 
+                games_and_cat = utils.sort_games(json.loads(reg_user.games), games, hours_and_games, stats)
+                s = utils.get_secret()
+                reg_user.curr_session = s
+                reg_user.put()
+
+                self.render('games.html',user=user,beaten=games_and_cat['beaten'],unbeaten=games_and_cat['unbeaten'],
+                    not_interested=games_and_cat['not_interested'], playing=games_and_cat['playing'],
+                    user_logged_url=user_logged_url,logged_in=logged_in,
+                    stats=stats,mp=mp,s=s)
+
+
+class SaveChangesHandler(Handler):
+    def post(self):
+        post_data = json.loads(self.request.body)
+        saved, error = utils.save_data(post_data)
+        if saved:
+            self.write(json.dumps({'success': True}))
+        else:
+            self.write(json.dumps({'success': False, 'error': error}))
+        
 
 class UpdateHandler(Handler):
     def get(self):
@@ -222,7 +230,7 @@ class UpdateHandler(Handler):
                 error_msg = ''
                 success_msg = '%s has been sucesfully updated.' % steam_id
                 if rc == 2:
-                    # Succesfull update
+                    # Succesful update
                     pass
                 elif rc == 5:
                     # Priavte profile
@@ -448,6 +456,7 @@ class UpdateStatsCron(Handler):
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/games/?', UserGamesHandler),
+    ('/savechanges/?', SaveChangesHandler),
     ('/update/?', UpdateHandler),
     ('/gamesupdate/?', UpdateGamesHandler),
     ('/updateboth/?', UpdateBothHandler),

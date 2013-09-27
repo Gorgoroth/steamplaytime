@@ -42,7 +42,9 @@ class SteamIds(ndb.Model):
 
 class RegUsers(ndb.Model):
 	steam_id_obj = ndb.KeyProperty()
+	games = ndb.TextProperty()
 	date_created = ndb.DateTimeProperty()
+	curr_session = ndb.IntegerProperty()
 
 class LostIds(ndb.Model):
 	appids = ndb.IntegerProperty(repeated=True)

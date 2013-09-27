@@ -13,12 +13,13 @@
     	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
     	<script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.0.1/angular.min.js"></script>
     	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+
     	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap.min.css" rel="stylesheet">
     	<script src="scripts/angular-dragdrop/angular-dragdrop.min.js"></script>
 		<script src="scripts/controllers.js"></script>
 
 		<style>
-      .thumbnail { height: 280px !important; }
+      .thumbnail     { height: 280px !important; }
       .btn-droppable { width: 180px; height: 30px; padding-left: 4px; }
       .img-draggable { width: 300px; }
 		</style>
@@ -37,9 +38,7 @@
               <li class="span3" style='margin-left:10px;'>
               	<h3>Beaten</h3>
                 <div class="thumbnail" data-drop="true" ng-model='list1' data-jqyoui-options="optionsList1" jqyoui-droppable="{multiple:true}">
-                  <div class="caption">
-                    <div class="img-draggable" ng-repeat="item in list1" ng-show="item.url" data-drag="{{item.drag}}" data-jqyoui-options="{revert: 'invalid'}" ng-model="list1" jqyoui-draggable="{index: {{$index}},animate:true}"><figure><img src="{{item.url}}"></img><figcaption>Hours: {{item.hours}}</figcaption></figure></div>
-                  </div>
+
                 </div>
               </li>
               <li class="span3" style='margin-left:10px;'>
@@ -71,13 +70,22 @@
         </div>
       </div>
       <div class="navbar-inner">
+
         <div class="container form-inline" style="text-align: center;">
+
           <div ng-repeat="item in list5" data-drop="true" ng-model='list5' data-jqyoui-options="{accept:'.img-draggable:not([ng-model=list5])'}"  jqyoui-droppable="{index: {{$index}}}">
+
             <div class="img-draggable" data-drag="{{item.drag}}" data-jqyoui-options="{revert: 'invalid'}" ng-model="list5" jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}" ng-hide="!item.url"><figure><img src="{{item.url}}"></img><figcaption>Hours: {{item.hours}}</figcaption></figure></div>
+            
           </div>
         </div>
       </div>
-    </div>
+
+      <p>Initial:</p>
+      <p ng-repeat="game in list5">{{game.name}}</p>
+      <p>Beaten:</p>
+      <p <p ng-repeat="game in list1">{{game.name}}</p>
+      </div>
 
 
 

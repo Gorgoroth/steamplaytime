@@ -140,6 +140,22 @@ def _update_user(user, info_to_update, stats):
         user.key.delete()
         return user, 5
     else:
+
+        # This section ONLY tries to recalculate the beaten/unbeaten lists for NEW games since the last update
+        # (so we don't overwrite what the user might have custom set other games as.)
+        reg_user, url, private = utils.get_registered_user(user.steam_id)
+        if reg_user:
+
+            reg_games = json.loads(reg_user.games)
+            new = [x for x in user.games if str(x) not in reg_games.keys()]
+            new = utils.find_games_by_id(new)
+            new = utils.users_games_beaten(user, stats, new)
+            
+            all_games = dict(reg_games.items() + new.items())
+            reg_user.games = json.dumps(all_games)
+
+            reg_user.put()
+
         games = info_to_update.get_games()
         total_hours, hours_without_mp, hours = calc_hours(games)
         hours_needed_main, hours_needed_complete, game_objs, mp_main, mp_complete = calc_needed(info_to_update.get_games(),stats)
@@ -155,6 +171,8 @@ def _update_user(user, info_to_update, stats):
         user.hours_without_mp = hours_without_mp
         user.last_updated = datetime.now()
         user.put()
+
+
         return user, 2
 
 def update_user(steam_id):

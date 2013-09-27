@@ -7,6 +7,8 @@ import counters
 import config
 import os
 import users
+import random
+import sys
 from bs3.BeautifulSoup import BeautifulSoup
 from datastore.models import *
 from datetime import datetime, timedelta
@@ -40,34 +42,123 @@ def confirm_user(user):
             steam_id = "76561197990319574" # SenseiJinx
             # steam_id = "76561198077101159" # Naiyt
         if steam_id:
-            user, log_url, private = get_registered_user(steam_id)
+            user, log_url, private = get_registered_user(steam_id, True)
             return user, log_url, private
 
 
-def get_registered_user(steam_id):
+# Checks to see if we have a registered user with that name
+def get_registered_user(steam_id, add_if_none=False):
     user = RegUsers.get_by_id(steam_id)
     if user:
         return user, log_out_url, False
     else:
+        # The next few lines try and confirm if the user was logged in (only possible if a correct
+        # steamid was passed in).
+        stats = retrieve_stats()
         flat_steam_id = get_user(steam_id)
-        if flat_steam_id:
-            new_user = add_user(flat_steam_id)
+        if flat_steam_id and add_if_none:
+            new_user = add_user(flat_steam_id, stats)
             return new_user, log_out_url, False
         else:
-            stats = retrieve_stats()
             flat_steam_id, rc = users.get_user(steam_id, stats)
-            if flat_steam_id:
-                new_user = add_user(flat_steam_id)
+            if flat_steam_id and add_if_none:
+                new_user = add_user(flat_steam_id, stats)
                 return new_user, log_out_url, False
             else:
                 return None, log_in_url, True
 
 
+def save_data(post_data):
+    reg_user, throw_away, throw_away2 = get_registered_user(post_data['steam_id'])
+    if reg_user:
+        if reg_user.curr_session != post_data['s']:
+            return False, 'Bad session data'
+        else:
+            #game_info = json.loads(reg_user.games)
+            game_info = {}
+            for game in post_data['beaten']:
+                game_info[game['appid']] = {'user_defined': True, 'category': 'beaten'}
+            for game in post_data['unbeaten']:
+                game_info[game['appid']] = {'user_defined': True, 'category': 'unbeaten'}
+            for game in post_data['playing']:
+                game_info[game['appid']] = {'user_defined': True, 'category': 'playing'}
+            for game in post_data['not_interested']:
+                logging.error(game['game_name'])
+                game_info[game['appid']] = {'user_defined': True, 'category': 'not_interested'}
+    
+            reg_user.games = json.dumps(game_info)
+            reg_user.put()
+    
+            return True, None
+    else:
+        return False, 'Error finding user'
 
-def add_user(user):
-    new_user = RegUsers(id=user.steam_id, steam_id_obj=user.key, date_created=datetime.now())
+
+def get_secret():
+    random.seed()
+    return random.randrange(sys.maxint)
+
+def sort_games(games_and_categories, games, hours_and_games, stats):
+    beaten = []
+    unbeaten = []
+    not_interested = []
+    playing = []
+
+    for game in games:
+        appid = game.appid
+        game_and_cat = games_and_categories[str(appid)]
+        game_and_cat['game_name'] = game.game_name
+        game_and_cat['store_url'] = game.store_url
+        game_and_cat['image_url'] = game.image_url
+        game_and_cat['played'] = hours_and_games[appid]
+        game_and_cat['appid'] = appid
+
+        if game.main is None:
+            game_and_cat['hours'] = "%.2f" % stats.average_main
+        else:
+            game_and_cat['hours'] = game.main
+
+        if game_and_cat['category'] == 'beaten':
+            beaten.append(game_and_cat)
+        elif game_and_cat['category'] == 'unbeaten':
+            unbeaten.append(game_and_cat)
+        elif game_and_cat['category'] == 'not_interested':
+            not_interested.append(game_and_cat)
+        elif game_and_cat['category'] == 'playing':
+            playing.append(game_and_cat)
+
+    return {'beaten': beaten, 'unbeaten': unbeaten, 'not_interested': not_interested, 'playing': playing}
+        
+
+def add_user(user, stats):
+    users_games = users_games_beaten(user, stats)
+    users_games = json.dumps(users_games)
+    new_user = RegUsers(id=user.steam_id, steam_id_obj=user.key, date_created=datetime.now(), games=users_games)
     new_user.put()
     return new_user
+
+# Make an educated guess as to whether or not a user has beaten a game
+def users_games_beaten(user, stats, games=None):
+
+    games_list = {}
+    if games is None:
+        games = find_games_by_id(user.games)
+    games = [x for x in games if x is not None] # Just in case an appid in their list doesn't seem to exist
+    hours_and_games = dict(zip(user.games, user.hours))
+
+    for game in games:
+        played = hours_and_games[game.appid]
+        new_game = {'user_defined': False}
+        if game.main is None:
+            game.main = stats.average_main
+        if played < game.main:
+            new_game['category'] = 'unbeaten'
+        else:
+            new_game['category'] = 'beaten'
+        games_list[game.appid] = new_game
+
+    return games_list
+
 
 
 def remove_specials(str):
