@@ -7,7 +7,7 @@
 }*/
 
 body {
-
+  margin: 0;
 }
 
 .form-control {
@@ -36,6 +36,14 @@ body {
   border-radius: 4px;
 }
 
+
+div.right {
+  float: right;
+}
+
+div.left {
+  float: left;
+}
 
 
 #stats {
@@ -76,48 +84,60 @@ label {
   color: red;
 }
 
-div.dragging {
-
+.blue {
+  color: blue;
 }
-
-.img-draggable {
-  
-}
-
-div.column {
-   float: left;
-   width: 220px;
-   height: 100%;
-   text-align: center;
-   border: 1px solid #e1e1e8;
-   border-radius: 4px;
- }
 
 .thumbnail {
  height: 280px !important; 
 }
 
 .column-wrapper {
-  min-width: 900px;
+  min-width: 950px;
+  max-width: 950px;
 }
 
 .gameBox {
+  margin-top: 10px;
+  margin-left: -32px;
   padding: 5px 5px;
   background-color: #f7f7f9;
   border: 1px solid #e1e1e8;
   border-radius: 4px;
   width: 200px;
-  text-align: center;
-  margin: 0 auto;
   margin-bottom: 6px;
+  cursor: move;
 }
 
 figcaption {
   font-size: 11.5px;
+  text-align: center;
 }
 
 .spacer {
   height: 150px;
 }
 
-/* http://plnkr.co/edit/9Gq6GgRhxFGAy5xuMeCM?p=preview*/
+#sortable1, #sortable2, #sortable3, #sortable4 {
+   float: left;
+   width: 220px;
+   min-height: 70px;
+   border: 1px solid #e1e1e8;
+   border-radius: 4px;
+   list-style-type: none;
+} 
+
+div.column {
+   float: left;
+   width: 220px;
+   height: 100%;
+   text-align: center;
+}
+
+#game_details td {
+  
+}
+
+#game_details th {
+  max-width: 80px;
+}

@@ -28,9 +28,9 @@
     					<div class="nav-collapse collapse navbar-responsive-collapse">
     						<ul class="nav navbar-nav">
 								<li><a href="/about">Why? How?</a></li>
-								<li><a href="/unlistedgames">Help make this more accurate!</a></li>
 								{% if logged_in[0] %}
-									<li><a href="/?steamid={{logged_in[1]}}">My Account</a></li>
+									<li><a href="/games?steamid={{logged_in[1]}}">My Account</a></li>
+									<li><a href="/update?steamid={{logged_in[1]}}">Update Account</a></li>
 								{% endif %}
 								<li>{{user_logged_url|safe}}</a></li>
 							</ul>

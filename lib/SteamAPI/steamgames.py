@@ -26,7 +26,7 @@ class Base:
 	"""Base class mainly for opening urls and chunking data"""
 	def _retry(self, url, time, retries):
 		"""If a url is unavaible, retries it "retries" number of times, with "time" space between tries"""
-		print "{} was unreachable, _retrying {} number of times".format(url, retries)
+		logging.error("{} was unreachable, _retrying {} number of times".format(url, retries))
 		for num in range(retries):
 			try:
 				return urllib2.urlopen(url)
@@ -37,7 +37,9 @@ class Base:
 	def _open_url(self, url):
 		try:
 			return urllib2.urlopen(url)
-		except urllib2.URLError as e:
+		except:
+			return self._retry(url, 5, 5)
+		"""except urllib2.URLError as e:
 			logging.warning('URLError = {}'.format(str(e.reason)))
 			exit()
 		except urllib2.HTTPError as e:
@@ -45,7 +47,7 @@ class Base:
 			return _retry(self, url, 5, 5)
 		except ValueError:
 			logging.error('Not a proper url: {}'.format(url))
-			exit()
+			exit()"""
 
 	def _chunks(self, params, number):
 		"""Breaks a list into a set of equally sized chunked lists, with remaining entries in last list"""
@@ -74,7 +76,7 @@ class Games(Base):
 		"""
 
 		if num is None:
-			self.num = 200
+			self.num = 150
 		else:
 			self.num = num
 		# appids_to_names is a dict mapping appid -> game names
@@ -108,7 +110,6 @@ class Games(Base):
 		"""
 		if self.appids_to_names is None or self.names_to_appids is None:
 			self.appids_to_names, self.names_to_appids = self.get_ids_and_names()
-		print "Chunking data..."
 		urls = self._get_urls(self.appids_to_names.keys(), cc)
 		for url in urls:
 			curr_games = self._get_games_from(url)

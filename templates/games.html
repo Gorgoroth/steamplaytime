@@ -4,7 +4,7 @@
 	<title>Steam Playtime</title>
 	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
    	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
-   	<script src="scripts/angular-dragdrop/angular-dragdrop.min.js"></script>
+    <script src="scripts/sortable.js"></script>
 
    	<style>
 
@@ -16,104 +16,211 @@
 {% block content %}
 	<div ng-app="myApp" ng-controller="gameCtrl" ng-cloak>
 
+    <div class="right">Search: <input ng-model="query" ng-change="findItems()"> <button class="btn btn-small" ng-click="clear()">Clear</button></div>
+		<div class="left" id="saveButton"><button class="btn btn-primary btn-small" ng-click="save()">Save changes</button></div>
+    <div style="clear:both;"><span id="loading"></span><span class="red" ng-bind="error"></span><span class="blue" ng-bind="success"></span></div>
+    <br>
 
-         <!--<div class="gameBox">
-         		<figure>
-         			<img src="http://cdn.steampowered.com/v/gfx/apps/211420/capsule_184x69.jpg"></img>
-         			<figcaption>Dark Souls<br>Played: 300 / 40 (est)</figcaption>
-         		</figure>
-         </div>-->
+    <table class="table table-hover table-condensed" id="game_details">
+      <tr>
+        <th></th>
+        <th>Backlog</th>
+        <th>Beaten</th>
+        <th>Playing</th>
+        <th>Totals</th>
+      </tr>
+      <tr>
+        <th># of games</th>
+        <td ng-bind="unbeaten.length"></td>
+        <td ng-bind="beaten.length"></td>
+        <td ng-bind="playing.length"></td>
+        <td ng-bind="playing.length + unbeaten.length + beaten.length"></td>
+      </tr>
+      <tr>
+        <th>Hours Played</th>
+        <td ng-bind="unbeaten_played"></td>
+        <td ng-bind="beaten_played"></td>
+        <td ng-bind="playing_played"></td>
+        <td ng-bind="total_played"></td>
+        <tr>
+      <tr>
+        <th>Estimated Hours Required</th>
+        <td ng-bind="unbeaten_needed"></td>
+        <td ng-bind="beaten_needed"></td>
+        <td ng-bind="playing_needed"></td>
+        <td ng-bind="total_needed"></td>
+      </tr>
+    </table>
 
-		<button class="btn btn-primary" ng-click="save()">Save changes</button><br>
-		Search: <input ng-model="query"><br>
+    <div class="column-wrapper">
+      <div class="column"><h3>Playing</h3></div>
+      <div class="column"><h3>Backlog</h3></div>
+      <div class="column"><h3>Beaten</h3></div>
+      <div class="column"><h3>Not Interested</h3></div>
+    </div>
 
-		<p>{[{query}]}</p>
-
-		<div class="column-wrapper">
-
-		<ul>
-       	<div class="column" data-drop="true" ng-model='playing'  jqyoui-droppable="{multiple:true}" ui-sortable>
-       		<h3>Playing</h3>
-         	<div class="img-draggable gameBox" ng-repeat="item in playing | filter:query" ng-show="item.image_url" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" ng-model="playing" jqyoui-draggable="{index: {[{$index}]},animate:true}">
-         			<figure><img src="{[{item.image_url}]}"></img><figcaption>{[{item.game_name}]}<br>Played: {[{item.played}]} / {[{item.hours}]} (est)</figcaption></figure>
-         	</div>
-         	<div class="spacer"></div>
-        </div>
-    	</ul>
-
-    	<ul>
-       	<div class="column" data-drop="true" ng-model='beaten'  jqyoui-droppable="{multiple:true}" ui-sortable>
-       		<h3>Beaten</h3>
-         	<div class="img-draggable gameBox" ng-repeat="item in beaten | filter:query" ng-show="item.image_url" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" ng-model="beaten" jqyoui-draggable="{index: {[{$index}]},animate:true}">
-         			<figure><img src="{[{item.image_url}]}"></img><figcaption>{[{item.game_name}]}<br>Played: {[{item.played}]} / {[{item.hours}]} (est)</figcaption></figure>
-         	</div>
-         	<div class="spacer"></div>
-        </div>
+    <div class="column-wrapper">
+        <ul ui-sortable="sortableTemplates" ng-model="playing" id="sortable3" class="connectedSortable">
+          <li ng-repeat="item in playing" class="gameBox" ng-show="visible(item)">
+            <figure><img ng-src="{[{item.image_url}]}"></img><figcaption>{[{item.game_name}]}<br>Played: {[{item.played}]} / {[{item.hours}]}</figcaption></figure>
+          </li>
         </ul>
 
-        <ul>
-        <div class="column" data-drop="true" ng-model='unbeaten'  jqyoui-droppable="{multiple:true}" ui-sortable>
-       		<h3>Backlog</h3>
-         	<div class="img-draggable gameBox" ng-repeat="item in unbeaten | filter:query" ng-show="item.image_url" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" ng-model="unbeaten" jqyoui-draggable="{index: {[{$index}]},animate:true}">
-         			<figure><img src="{[{item.image_url}]}"></img><figcaption>{[{item.game_name}]}<br>Played: {[{item.played}]} / {[{item.hours}]} (est)</figcaption></figure>
-         	</div>
-         	<div class="spacer"></div>
-        </div>
-        <ul>
+        <ul ui-sortable="sortableTemplates" ng-model="unbeaten" id="sortable1" class="connectedSortable">
+          <li ng-repeat="item in unbeaten" class="gameBox" ng-show="visible(item)">
+            <figure><img ng-src="{[{item.image_url}]}"></img><figcaption>{[{item.game_name}]}<br>Played: {[{item.played}]} / {[{item.hours}]}</figcaption></figure>
+          </li>
+        </ul>
 
-        <ul>
-       	<div class="column" data-drop="true" ng-model='not_interested'  jqyoui-droppable="{multiple:true}" ui-sortable>
-       		<h3>Not Interested</h3>
-         	<div class="img-draggable gameBox" ng-repeat="item in not_interested | filter:query" ng-show="item.image_url" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" ng-model="not_interested" jqyoui-draggable="{index: {[{$index}]},animate:true}">
-         			<figure><img src="{[{item.image_url}]}"></img><figcaption>{[{item.game_name}]}<br>Played: {[{item.played}]} / {[{item.hours}]} (est)</figcaption></figure>
-         	</div>
-         	<div class="spacer"></div>
-        </div>
-    	</ul>
+        <ul ui-sortable="sortableTemplates" ng-model="beaten" id="sortable2" class="connectedSortable">
+          <li ng-repeat="item in beaten" class="gameBox" ng-show="visible(item)">
+            <figure><img ng-src="{[{item.image_url}]}"></img><figcaption>{[{item.game_name}]}<br>Played: {[{item.played}]} / {[{item.hours}]}</figcaption></figure>
+          </li>
+        </ul>
 
-    	</div>
+        <ul ui-sortable="sortableTemplates" ng-model="not_interested" id="sortable4" class="connectedSortable">
+          <li ng-repeat="item in not_interested" class="gameBox" ng-show="visible(item)">
+            <figure><img ng-src="{[{item.image_url}]}"></img><figcaption>{[{item.game_name}]}<br>Played: {[{item.played}]} / {[{item.hours}]}</figcaption></figure>
+          </li>
+        </ul>
+
+    </div>
+
+    <div style="clear:both;"></div>
 
    	<script>
-   		var app = angular.module('myApp', ['ngDragDrop']);
+   	var app = angular.module('myApp', ['ui.sortable']);
+    window.onload = function() {
+      var h1 = $('#sortable1').height();
+      var h2 = $('#sortable2').height();
+      var h3 = $('#sortable3').height();
+      var h4 = $('#sortable4').height();
+      var max = Math.max.apply(Math, [h1,h2,h3,h4]);
+      $('#sortable1').height(max);
+      $('#sortable2').height(max);
+      $('#sortable3').height(max);
+      $('#sortable4').height(max);
+    }
+
 		app.config(function($interpolateProvider) {
   			$interpolateProvider.startSymbol('{[{');
   			$interpolateProvider.endSymbol('}]}');
 		});
 
-		app.controller('gameCtrl', function($scope, $timeout, $http) {
+    function calc_hours_needed(obj) {
+      var sum = 0.0;
+      for(var i = 0; i < obj.length; i++) {
+        var newVal = parseFloat(obj[i].hours);
+        sum += newVal
+        
+      }
+      return Number(sum).toFixed(2);
+    }
+
+    function calc_hours_played(obj) {
+      var sum = 0.0;
+      for(var i = 0; i < obj.length; i++) {
+        var newVal = parseFloat(obj[i].played);
+        sum += newVal;
+      }
+      return Number(sum).toFixed(2);
+    }
+
+
+		app.controller('gameCtrl', function($scope, $timeout, $http, $filter) {
+
 			$scope.beaten = {{ beaten|tojson|safe }};
 			$scope.unbeaten = {{ unbeaten|tojson|safe }};
 			$scope.playing = {{ playing|tojson|safe }};
 			$scope.not_interested = {{ not_interested|tojson|safe }};
+      update_vals();
+
+      var updated = 0;
+
 			var s = {{ s }};
 			var steam_id = "{{ user.steam_id }}";
 
-    		$scope.save = function() {
-    			url = '/savechanges';
+      function update_vals() {
+        if (updated == 0) {updated = 1;} else{updated = 0;}
+        if (updated == 0) {
+          $scope.beaten_played = calc_hours_played($scope.beaten);
+          $scope.beaten_needed = calc_hours_needed($scope.beaten);
+          $scope.unbeaten_played = calc_hours_played($scope.unbeaten);
+          $scope.unbeaten_needed = calc_hours_needed($scope.unbeaten);
+          $scope.playing_played = calc_hours_played($scope.playing);
+          $scope.playing_needed = calc_hours_needed($scope.playing);
 
-    			var post_data = {
-    				beaten: $scope.beaten,
-    				unbeaten: $scope.unbeaten,
-    				playing: $scope.playing,
-    				not_interested: $scope.not_interested,
-    				steam_id: steam_id,
-    				s: s
-    			};
+          console.log($scope.playing_played);
 
-    			console.log(post_data);
-    		    $http({
-    		        method: 'POST',
-    		        url: url,
-    		        data: JSON.stringify(post_data)
-    		    }).success(function(data) {
-    		        console.log(data);
-    		    });
-    		}
+          total_played = parseFloat($scope.beaten_played) + parseFloat($scope.unbeaten_played) + parseFloat($scope.playing_played);
+          $scope.total_played = Number(total_played).toFixed(2);
 
-  		});
+          total_needed = parseFloat($scope.beaten_needed) + parseFloat($scope.unbeaten_needed) + parseFloat($scope.playing_needed);
+          $scope.total_needed = Number(total_needed).toFixed(2);
+        }
+      }
+
+    	$scope.save = function() {
+    		url = '/savechanges';
+        $('#loading').html("<img src='/images/loading.gif'></img>");
+        $scope.loading = "/images/loading.gif";
+        $scope.error = '';
+        $scope.success = '';
+
+    		var post_data = {
+    			beaten: $scope.beaten,
+    			unbeaten: $scope.unbeaten,
+    			playing: $scope.playing,
+    			not_interested: $scope.not_interested,
+    			steam_id: steam_id,
+    			s: s
+    		};
+
+    	    $http({
+    	        method: 'POST',
+    	        url: url,
+    	        data: JSON.stringify(post_data)
+    	    }).success(function(data) {
+            $('#loading').html('');
+            if(data.success) {
+              $scope.success = "Saved Succesfully!";
+            }
+            else {
+              $scope.error = "An error occured. Please try saving again.";
+            }
+    	    }).
+          error(function(data) {
+            $('#loading').html('');
+            $scope.error = "An error occured. Please try again.";
+          });
+    	}
+
+      $scope.sortableTemplates = {
+        connectWith: '.connectedSortable',
+        update: function(event, ui) {
+          update_vals([1,2,3]);
+        }
+      };
+
+      $scope.visible = function(item) {
+        var lists = $scope.beaten.concat($scope.unbeaten, $scope.playing, $scope.not_interested);
+        var filteredItems=$filter('filter')(lists, $scope.query);
+        if (filteredItems.length===0){return false;}
+        if (($filter('filter')(filteredItems,item)).length===1){
+          return true;
+        } else {
+        return false;
+        }
+      }
+      $scope.clear = function() {
+        $scope.query = "";
+      }
+
+  	});
+
    	</script>
 
 {% endblock content %}
 
 
-						
+				

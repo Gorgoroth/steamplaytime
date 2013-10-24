@@ -52,7 +52,7 @@ def get_user(steam_id, stats=None):
             if re.match(r'https?://steamcommunity.com/.*', steam_id):
                 try:
                     profile = urllib2.urlopen(steam_id)
-                except ValueError:
+                except:
                     return None, 7
                 soup = BeautifulSoup(profile)
                 scripts = soup.findAll('script')
@@ -68,7 +68,7 @@ def get_user(steam_id, stats=None):
             else:
                 try:
                     profile = urllib2.urlopen("http://steamcommunity.com/id/%s" % steam_id)
-                except ValueError:
+                except:
                     return None, 7
     
                 soup = BeautifulSoup(profile)
@@ -143,7 +143,7 @@ def _update_user(user, info_to_update, stats):
 
         # This section ONLY tries to recalculate the beaten/unbeaten lists for NEW games since the last update
         # (so we don't overwrite what the user might have custom set other games as.)
-        reg_user, url, private = utils.get_registered_user(user.steam_id)
+        reg_user = RegUsers.get_by_id(user.steam_id)
         if reg_user:
 
             reg_games = json.loads(reg_user.games)

@@ -83,7 +83,6 @@ def save_data(post_data):
             for game in post_data['playing']:
                 game_info[game['appid']] = {'user_defined': True, 'category': 'playing'}
             for game in post_data['not_interested']:
-                logging.error(game['game_name'])
                 game_info[game['appid']] = {'user_defined': True, 'category': 'not_interested'}
     
             reg_user.games = json.dumps(game_info)
@@ -106,26 +105,27 @@ def sort_games(games_and_categories, games, hours_and_games, stats):
 
     for game in games:
         appid = game.appid
-        game_and_cat = games_and_categories[str(appid)]
-        game_and_cat['game_name'] = game.game_name
-        game_and_cat['store_url'] = game.store_url
-        game_and_cat['image_url'] = game.image_url
-        game_and_cat['played'] = hours_and_games[appid]
-        game_and_cat['appid'] = appid
-
-        if game.main is None:
-            game_and_cat['hours'] = "%.2f" % stats.average_main
-        else:
-            game_and_cat['hours'] = game.main
-
-        if game_and_cat['category'] == 'beaten':
-            beaten.append(game_and_cat)
-        elif game_and_cat['category'] == 'unbeaten':
-            unbeaten.append(game_and_cat)
-        elif game_and_cat['category'] == 'not_interested':
-            not_interested.append(game_and_cat)
-        elif game_and_cat['category'] == 'playing':
-            playing.append(game_and_cat)
+        if str(appid) in games_and_categories:
+            game_and_cat = games_and_categories[str(appid)]
+            game_and_cat['game_name'] = game.game_name
+            game_and_cat['store_url'] = game.store_url
+            game_and_cat['image_url'] = game.image_url
+            game_and_cat['played'] = hours_and_games[appid]
+            game_and_cat['appid'] = appid
+    
+            if game.main is None:
+                game_and_cat['hours'] = "%.2f" % stats.average_main
+            else:
+                game_and_cat['hours'] = game.main
+    
+            if game_and_cat['category'] == 'beaten':
+                beaten.append(game_and_cat)
+            elif game_and_cat['category'] == 'unbeaten':
+                unbeaten.append(game_and_cat)
+            elif game_and_cat['category'] == 'not_interested':
+                not_interested.append(game_and_cat)
+            elif game_and_cat['category'] == 'playing':
+                playing.append(game_and_cat)
 
     return {'beaten': beaten, 'unbeaten': unbeaten, 'not_interested': not_interested, 'playing': playing}
         

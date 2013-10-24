@@ -7,7 +7,6 @@
 
 {% block content %}
 
-	<!--<div class="profileimg"><a href="{{user.profileurl}}"><img src="{{user.avatar}}"></a></div>-->
 	<div><p class="text-warning">{{notice|safe}}</p></div>
 
 	<h2 class="text-center"><a href="{{user.profileurl}}">{{user.username}}'s</a> Steam library would take approx. {{user_hour_info['main_needed']}} hours to complete.</h2>
@@ -57,7 +56,7 @@
 		{% if not logged_in[0] %}
 			<h3>Is this your account? Sign in with your Steam Account below to manage your backlog, and see a detailed breakdown by game.</h3>
 			{{user_logged_url|safe}}
-		{% else %}
+		{% elif logged_in[1] == user.steam_id %}
 		<a href="/games?steamid={{user.steam_id}}" class="btn btn-primary">View a detailed breakdown by game</a>
 		{% endif %}
 	</div>

@@ -397,7 +397,19 @@ class AdminTaskHandler(Handler):
             logging.info("Took %s seconds to retrieve hltb" % elapsed)"""
 
         if games_update_req:
-            games.update_games()
+            games.get_games()
+
+        new_imag = self.request.get('newimgs')
+        if new_imag:
+            games = Games_DB.query()
+            changed_games = []
+            for game in games.iter():
+                appid = game.appid
+                new_image_url = "http://cdn.steampowered.com/v/gfx/apps/{}/capsule_184x69.jpg".format(appid)
+                game.image_url = new_image_url
+                changed_games.append(game)
+            ndb.put_multi(changed_games)
+
 
 
 class TestBed(Handler):
@@ -407,17 +419,9 @@ class TestBed(Handler):
 
     """
     def get(self):
-        game = utils.find_item('dontstarve')
-        self.write(game)
-        #taskqueue.add(url='/getids')
-        #taskqueue.add(url='/runtest')
-        """count = utils.retrieve_hit_count()
-        games = Games_DB.query(Games_DB.hltburl == None)
-        for game in games:
-            try:
-                self.write('{}|{}|{}</br>'.format(game.game_name, game.appid, game.search_name))
-            except:
-                self.write('{}|{}</br>'.format(game.appid, game.search_name))"""
+        taskqueue.add(url='/admintaskhandler', params={'newimgs': 'y'})
+        self.write("Done")
+
 
 
 class UpdateStatsCron(Handler):
